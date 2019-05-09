@@ -1,13 +1,18 @@
 <script>
     import * as clipboard from 'clipbrd';
-    import {getShapshotList} from "~/api/index";
+    import Centrifuge from 'centrifuge';
+    import {getPriceStatus, getPriceChart, getBlockList} from "~/api/index";
     import getTitle from '~/assets/get-title';
     import checkEmpty from '~/assets/v-check-empty';
     import {pretty, prettyRound, prettyUsd, getExplorerAddressUrl} from "~/assets/utils";
+    import {EXPLORER_RTM_URL, NETWORK, NETWORK_EXPLORER_CHANNEL} from "~/assets/variables";
     import Language from '~/layouts/_language';
     import CoinHistoryChart from '~/components/CoinHistoryChart';
 
     const VOTE_ADDRESS = 'Mx00000000000000000000000000000000000000A1';
+    const NETWORK_WS_PREFIX = NETWORK_EXPLORER_CHANNEL ? NETWORK_EXPLORER_CHANNEL + '_' : '';
+
+    let centrifuge;
 
     export default {
         ideFix: 0,
@@ -25,25 +30,29 @@
             prettyRound,
             uppercase: (value) => value.toString().toUpperCase(),
         },
-        // asyncData({ error }) {
-        //     return getShapshotList()
-        //         .then((snapshotList) => {
-        //             return {
-        //                 snapshotList,
-        //             };
-        //         })
-        //         .catch((resError) => {
-        //             console.log(resError, resError.response);
-        //             if (resError.response && resError.response.status) {
-        //                 error({
-        //                     statusCode: resError.response.status,
-        //                     message: resError.response.statusText,
-        //                 });
-        //             } else {
-        //                 error({ statusCode: resError.request && resError.request.status, message: resError.message });
-        //             }
-        //         });
-        // },
+        asyncData({ error }) {
+            return Promise.all([getPriceStatus(), getPriceChart(), getBlockList()])
+                .then(([priceStatus, priceChart, blockList]) => {
+                    return {
+                        voteFinishBlockHeight: priceStatus.block_id,
+                        currentPrice: priceStatus.price,
+                        totalVotingStake: priceStatus.total_stake,
+                        priceChart,
+                        latestBlockHeight: blockList.data[0].height,
+                    };
+                })
+                .catch((resError) => {
+                    console.log(resError, resError.response);
+                    if (resError.response && resError.response.status) {
+                        error({
+                            statusCode: resError.response.status,
+                            message: resError.response.statusText,
+                        });
+                    } else {
+                        error({ statusCode: resError.request && resError.request.status, message: resError.message });
+                    }
+                });
+        },
         head() {
             const title = getTitle(this.$td('BIP Price', 'index.seo-title'));
             const description = this.$td('Discover the price of BIP in real time as Minter network participants vote.', 'index.seo-description');
@@ -61,10 +70,11 @@
         },
         data() {
             return {
-                voteBlockFinish: 24932,
-                voteBlockCurrent: 0,
-                currentPrice: 0.61,
-                totalVotingStake: 13310303,
+                voteFinishBlockHeight: 0,
+                latestBlockHeight: 0,
+                currentPrice: 0,
+                totalVotingStake: 0,
+                priceChart: {data: [1, 2, 2.5, 3, 3, 4], labels: [1, 2, 2.5, 3, 3, 4]},
             };
         },
         computed: {
@@ -73,7 +83,8 @@
                 const HOUR_MS = 1000*60*60;
                 const MINUTE_MS = 1000*60;
 
-                const blocks = this.voteBlockFinish - this.voteBlockCurrent;
+                let blocks = this.voteFinishBlockHeight - this.latestBlockHeight;
+                blocks = Math.max(blocks, 0);
 
                 // diff in milliseconds
                 let diff = blocks * 5 * 1000;
@@ -92,9 +103,6 @@
                     minutes,
                 };
             },
-            chartData() {
-                return [1, 2, 2.5, 3, 3, 4];
-            },
             guideUrl() {
                 if (this.$i18n.locale === 'ru') {
                     return 'https://medium.com/@MinterTeam/%D0%B7%D0%B0%D0%BF%D1%83%D1%81%D0%BA-minter-mainnet-%D0%B8-%D0%B3%D0%BE%D0%BB%D0%BE%D1%81%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D0%B5-%D0%BF%D0%BE-%D1%86%D0%B5%D0%BD%D0%B5-bip-108d2b22c434';
@@ -106,13 +114,30 @@
                 return clipboard.isSupported();
             },
         },
-        mounted() {
-
+        beforeMount() {
+            this.subscribeWS();
         },
         destroyed() {
-
+            if (centrifuge) {
+                centrifuge.disconnect();
+            }
         },
         methods: {
+            subscribeWS(connectData) {
+                centrifuge = new Centrifuge(EXPLORER_RTM_URL, {
+                    // user: connectData.user ? connectData.user : '',
+                    // timestamp: connectData.timestamp.toString(),
+                    // token: connectData.token,
+                    // sockjs: SockJS,
+                });
+
+                centrifuge.subscribe(NETWORK_WS_PREFIX + "blocks", (response) => {
+                    const newBlock = response.data;
+                    this.latestBlockHeight = newBlock.height;
+                });
+
+                centrifuge.connect();
+            },
             copy(str) {
                 const isCopied = clipboard.copy(str);
                 if (isCopied) {
@@ -173,7 +198,7 @@
                     <div class="dashboard__item-title dashboard__title">
                         {{ $td('BIP Price Chart', 'index.price-chart-title') }}
                     </div>
-                    <CoinHistoryChart :chartData="chartData" />
+                    <CoinHistoryChart :dataset="priceChart" />
                 </div>
             </div>
 

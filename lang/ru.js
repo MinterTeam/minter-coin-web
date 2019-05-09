@@ -10,6 +10,7 @@ export default {
         'total-stake-title': 'Суммарный стейк голосов',
         'total-stake-link': 'Посмотреть транзакции',
         'price-chart-title': 'Изменение стоимости BIP',
+        'price-chart-block-label': 'Блоки',
         'guide-title': 'Как голосовать?',
         'guide-description-1': '1. Чтобы проголосовать за цену BIP, отправьте транзакцию с любой суммой на адрес:',
         'guide-description-2': '2. В сообщении к транзакции (Payload) укажите любую желаемую цену в USD от 0.001 до 1000, например, 0.5.',

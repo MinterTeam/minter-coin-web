@@ -1,7 +1,7 @@
 import format from 'date-fns/esm/format';
 import prettyNum from 'pretty-num';
 import decode from 'entity-decode';
-import {EXPLORER_URL} from "~/assets/variables";
+import {EXPLORER_WEB_HOST} from "~/assets/variables";
 
 export function getTime(timestamp) {
     const time = format(new Date(Number(timestamp)), 'dd-MMM-yyyy HH:mm');
@@ -20,7 +20,7 @@ export function prettyRound(value) {
 }
 
 export function getExplorerAddressUrl(address) {
-    return EXPLORER_URL + '/address/' + address;
+    return EXPLORER_WEB_HOST + '/address/' + address;
 }
 
 // export function pretty(value) {

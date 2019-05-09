@@ -88,7 +88,6 @@ export default {
         // },
         watch: [
             './api/',
-            // `./lang/`, // this watcher dont-work yet
         ],
         /*
         ** Run ESLint on save

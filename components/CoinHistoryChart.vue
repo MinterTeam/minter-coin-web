@@ -6,28 +6,26 @@
 
     export default {
         props: {
-            chartData: {
-                type: Array,
+            dataset: {
+                type: Object,
                 required: true,
             },
         },
         computed: {
-            lastChartData() {
-                return this.hasData ? this.chartData.slice(-15) : [];
-            },
             hasData() {
-                return this.chartData && this.chartData.length > 1;
+                return this.dataset && this.dataset.data && this.dataset.data.length > 1 && this.dataset.labels && this.dataset.labels.length > 1;
             },
             chartConfig() {
+                if (!this.hasData) {
+                    return;
+                }
+
                 return {
                     type: 'line',
                     data: {
-                        labels: this.lastChartData.reduce((accumulator, item, index) => {
-                            accumulator.push(index);
-                            return accumulator;
-                        }, []),
+                        labels: this.dataset.labels,
                         datasets: [{
-                            data: this.lastChartData,
+                            data: this.dataset.data,
                             borderColor: '#d15c22',
                             borderWidth: 3,
                             fill: false,
@@ -48,7 +46,7 @@
                                     padding: 8,
                                     fontColor: '#fff',
                                     callback: (value, index, values) => {
-                                        return index === 0 ? this.$td('Days', 'dashboard.campaign-chart-days') : value;
+                                        return index === 0 ? this.$td('Blocks', 'index.price-chart-block-label') : value;
                                     },
                                 },
                                 gridLines: {
@@ -69,7 +67,7 @@
                                     padding: 8,
                                     fontColor: '#fff',
                                     callback: function(value, index, values) {
-                                        return index === values.length - 1 ? '%' : value;
+                                        return index === values.length - 1 ? '$' : value;
                                     },
                                 },
                                 gridLines: {
@@ -96,7 +94,7 @@
                                 label: function(tooltipItem, data) {
                                     let value = data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index];
                                     value = prettyUsd(value);
-                                    return `${value}\u2009%`; // &thinsp;
+                                    return `$${value}`; // &thinsp;
                                 },
                             },
                         },
@@ -105,8 +103,8 @@
             },
         },
         watch: {
-            chartData(newVal) {
-                if (!newVal || !(newVal.length > 1)) {
+            dataset(newVal) {
+                if (!newVal || !this.hasData) {
                     return;
                 }
                 if (historyChart) {
