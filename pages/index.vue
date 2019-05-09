@@ -204,7 +204,7 @@
                     <div class="dashboard__accent-sub">{{ totalVotingStake | prettyRound }} {{ $store.getters.COIN_NAME }}</div>
 
                     <div class="dashboard__item">
-                        <a class="link--default" :href="getExplorerAddressUrl('Mx00000000000000000000000000000000000000A1')" target="_blank">{{ $td('See transactions', 'index.total-stake-link') }}</a>
+                        <a class="link--default" :href="getExplorerAddressUrl($options.VOTE_ADDRESS)" target="_blank">{{ $td('See transactions', 'index.total-stake-link') }}</a>
                     </div>
                 </div>
 
