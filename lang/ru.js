@@ -6,6 +6,8 @@ export default {
         'finish-hours': 'ч',
         'finish-minutes': 'м',
         'finish-blocks': 'блок',
+        'voting-ended-title': 'Голосование завершилось на',
+        'voting-ended-block': 'блоке',
         'current-price-title': 'Текущая стоимость BIP',
         'total-stake-title': 'Суммарный стейк голосов',
         'total-stake-link': 'Посмотреть транзакции',

@@ -67,3 +67,30 @@ export function getExplorerAddressUrl(address) {
 //     url = url.trim();
 //     return url.replace(/^https?:\/\//, '').replace(/\/$/, '');
 // }
+
+export function pluralFormEn(value, form1, form2) {
+    if (parseInt(value, 10) === 1) {
+        return form1;
+    } else {
+        return form2;
+    }
+}
+
+export function pluralFormRu(value, form1, form2, form3) {
+    value = value % 100; // интереусует последние 2 цифры, т.к. 311 => form3
+    let lastDigit = parseInt(value.toString().substr(-1, 1), 10);
+
+    if (!form3) {
+        form3 = form2;
+    }
+
+    if (value >= 11 && value <= 19) {
+        return form3; // 11 атласов
+    } else if (lastDigit === 1) {
+        return form1; // 1 атлас
+    } else if (lastDigit === 2 || lastDigit === 3 || lastDigit === 4) {
+        return form2; // 2 атласа
+    } else {
+        return form3; // 30 атласов
+    }
+}

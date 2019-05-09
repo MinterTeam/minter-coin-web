@@ -4,12 +4,12 @@
     import {getPriceStatus, getPriceChart, getBlockList} from "~/api/index";
     import getTitle from '~/assets/get-title';
     import checkEmpty from '~/assets/v-check-empty';
-    import {pretty, prettyRound, prettyUsd, getExplorerAddressUrl} from "~/assets/utils";
+    import {pretty, prettyRound, prettyUsd, getExplorerAddressUrl, pluralFormRu, pluralFormEn} from "~/assets/utils";
     import {EXPLORER_RTM_URL, NETWORK, NETWORK_EXPLORER_CHANNEL} from "~/assets/variables";
     import Language from '~/layouts/_language';
     import CoinHistoryChart from '~/components/CoinHistoryChart';
 
-    const VOTE_ADDRESS = 'Mx00000000000000000000000000000000000000A1';
+    const VOTE_ADDRESS = 'Mx00000000000000000000000000000000000000a1';
     const NETWORK_WS_PREFIX = NETWORK_EXPLORER_CHANNEL ? NETWORK_EXPLORER_CHANNEL + '_' : '';
 
     let centrifuge;
@@ -103,6 +103,13 @@
                     minutes,
                 };
             },
+            pluralBlocks() {
+                if (this.$i18n.locale === 'ru') {
+                    return pluralFormRu(this.voteFinish.blocks, 'блок', 'блока', 'блоков');
+                } else {
+                    return pluralFormEn(this.voteFinish.blocks, 'block', 'blocks');
+                }
+            },
             guideUrl() {
                 if (this.$i18n.locale === 'ru') {
                     return 'https://medium.com/@MinterTeam/%D0%B7%D0%B0%D0%BF%D1%83%D1%81%D0%BA-minter-mainnet-%D0%B8-%D0%B3%D0%BE%D0%BB%D0%BE%D1%81%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D0%B5-%D0%BF%D0%BE-%D1%86%D0%B5%D0%BD%D0%B5-bip-108d2b22c434';
@@ -169,20 +176,27 @@
 
             <!-- sale stats -->
             <div class="u-grid u-grid--vertical-margin">
-                <div class="u-cell u-cell--large--auto">
+                <div class="u-cell u-cell--large--auto" v-if="voteFinish.blocks !== 0">
                     <div class="dashboard__item-title dashboard__title">
                         {{ $td('The voting ends in', 'index.finish-title') }}
                     </div>
                     <div class="dashboard__accent-sub">{{ voteFinish.hours }}{{ $td('h', 'index.finish-hours') }} {{
                         voteFinish.minutes }}{{ $td('m', 'index.finish-minutes') }}</div>
-                    <div class="dashboard__item-element">{{ voteFinish.blocks | prettyRound }} {{ $td('blocks',
-                        'index.finish-blocks') }}</div>
+                    <div class="dashboard__item-element">{{ voteFinish.blocks | prettyRound }} {{ this.pluralBlocks }}</div>
+                </div>
+                <div class="u-cell u-cell--large--auto" v-else>
+                    <div class="dashboard__item-title dashboard__title">
+                        {{ $td('The voting ended at', 'index.voting-ended-title') }}
+                    </div>
+                    <div class="dashboard__accent-sub">{{ voteFinishBlockHeight | prettyRound }} {{ $td('block',
+                        'index.voting-ended-block') }}</div>
+                    <div class="dashboard__item-element"></div>
                 </div>
                 <div class="u-cell u-cell--large--auto">
                     <div class="dashboard__item-title dashboard__title">
                         {{ $td('Current price of BIP', 'index.current-price-title') }}
                     </div>
-                    <div class="dashboard__accent-sub dashboard__accent-sub--green">${{ currentPrice }}</div>
+                    <div class="dashboard__accent-sub dashboard__accent-sub--green">${{ currentPrice | prettyUsd }}</div>
 
                     <div class="dashboard__item-title dashboard__title">
                         {{ $td('Total stake of votes', 'index.total-stake-title') }}
