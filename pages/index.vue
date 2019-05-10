@@ -229,7 +229,7 @@
                         <img src="/img/icon-copy.svg" alt="Copy">
                     </button>
                 </p>
-                <p>{{ $td('2. In a transaction message (Payload), specify the USD price that you vote for, ranging from 0.001 to 1000—for example, 0.5.', 'index.guide-description-2') }}</p>
+                <p>{{ $td('2. In a transaction message (Payload), specify the USD price that you vote for, ranging from 0.01 to 1—for example, 0.5.', 'index.guide-description-2') }}</p>
                 <p>
                     <a class="link--default" href=""></a>
                     <a class="link--default u-display-ib" :href="guideUrl" target="_blank">{{ $td('Read more about the voting system.', 'index.guide-link') }}</a>
