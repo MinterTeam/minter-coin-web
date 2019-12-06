@@ -40,6 +40,7 @@ export default {
     },
     plugins: [
         { src: '~/plugins/click-blur.js', ssr: false },
+        { src: '~/plugins/seo-gtm.js', ssr: false },
     ],
     env: envConfig.error ? {} : envConfig.parsed,
     modules: [

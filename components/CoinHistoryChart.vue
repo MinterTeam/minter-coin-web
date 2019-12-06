@@ -19,6 +19,7 @@
                 if (!this.hasData) {
                     return;
                 }
+                const vm = this;
 
                 return {
                     type: 'line',
@@ -81,14 +82,17 @@
                             display: false,
                         },
                         elements: {
-                            point: {
-                                radius: 0,
-                                hitRadius: 10,
-                            },
+                            point: false,
                         },
                         tooltips: {
                             displayColors: false,
                             bodyFontStyle: 'bold',
+                            bodyFontSize: 14,
+                            // caretPadding: 2,
+                            // caretSize: 0,
+                            position: 'nearest',
+                            mode: 'index',
+                            intersect: false,
                             callbacks: {
                                 title: () => '',
                                 label: function(tooltipItem, data) {
@@ -97,6 +101,40 @@
                                     return `$${value}`; // &thinsp;
                                 },
                             },
+                            custom: function(tooltipModel) {
+                                // Tooltip Element
+                                var tooltipEl = document.getElementById('chartjs-tooltip');
+
+                                // Create element on first render
+                                if (!tooltipEl) {
+                                    tooltipEl = document.createElement('div');
+                                    tooltipEl.id = 'chartjs-tooltip';
+                                    vm.$el.querySelector('[data-history-chart]').parentNode.appendChild(tooltipEl);
+                                    tooltipEl.style.position = 'absolute';
+                                    tooltipEl.style.top = '6px';
+                                    tooltipEl.style.bottom = '28px';
+                                    tooltipEl.style.width = '1px';
+                                    tooltipEl.style.background = '#d15c22';
+                                    tooltipEl.style.pointerEvents = 'none';
+                                    // document.body.appendChild(tooltipEl);
+                                }
+
+                                // Hide if no tooltip
+                                if (tooltipModel.opacity === 0) {
+                                    tooltipEl.style.opacity = 0;
+                                    return;
+                                }
+
+
+
+                                // `this` will be the overall tooltip
+                                // var position = this._chart.canvas.getBoundingClientRect();
+
+                                // Display, position, and set styles for font
+                                tooltipEl.style.opacity = 1;
+                                tooltipEl.style.left = tooltipModel.caretX + 'px';
+
+                            }
                         },
                     },
                 };
