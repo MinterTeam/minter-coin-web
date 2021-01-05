@@ -23,7 +23,7 @@
     "@material/list": "^2.0.0",
     "@material/menu": "^2.0.0",
     "@material/snackbar": "^2.0.0",
-    "axios": "^0.18.0",
+    "axios": "^0.21.1",
     "centrifuge": "^2.1.5",
     "chart.js": "^2.8.0",
     "clipbrd": "^1.0.2",
